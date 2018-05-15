@@ -40,7 +40,7 @@ public class RectangleCollector {
     private static Logger logger=Logger.getLogger(RectangleCollector.class);
     
     static {
-        logger.setLevel(Level.OFF);
+        logger.setLevel(Level.DEBUG);
         PatternLayout layout = new PatternLayout("%5p  %d  %F  %L  %m%n");     
         try {
             logger.addAppender(new  RollingFileAppender(layout,LOG_FOLDER+RectangleCollector.class.getSimpleName()+ LOG_FILE_EXTENSION));

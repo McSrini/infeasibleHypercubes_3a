@@ -11,6 +11,7 @@ import static ca.mcmaster.infeasiblehypercubes_3a.drivers.Base_Driver.incumbent;
 import static ca.mcmaster.infeasiblehypercubes_3a.Constants.ZERO;
 import ca.mcmaster.infeasiblehypercubes_3a.collection.LeafNode;
 import ca.mcmaster.infeasiblehypercubes_3a.collection.Rectangle;
+import ca.mcmaster.infeasiblehypercubes_3a.collection.RectangleCollector;
 import ca.mcmaster.infeasiblehypercubes_3a.common.VariableCoefficientTuple;
 import ca.mcmaster.infeasiblehypercubes_3a.utils.BranchingVariableSuggestor;
 import ilog.concert.IloException;
@@ -59,7 +60,7 @@ public class Best_First_Driver extends Base_Driver {
             try {
                 //make sure all infeasible rectangles are available, whose LP is better than selected node
                 
-                this.replenishRectanglesAll(bestBound);
+                logger.debug ("Number of rects replenished by this leaf = " + this.replenishRectanglesAll(bestBound));
             } catch (IloException ex) {
                 logger.error("unable to refresh rects "+ex) ;
                 exit(ONE);
@@ -93,6 +94,11 @@ public class Best_First_Driver extends Base_Driver {
             System.out.println("MIP is infeasible");
         }else{
             System.out.println("MIP is optimal \n" + bestKnownSolution + " \n optimal value is = "+ incumbent);
+        }
+        
+        logger.debug("Priniting all collected rects") ;
+        for (RectangleCollector collector : this.rectangleCollectorList){
+            //collector.printAllCollectedRects();
         }
         
     }//end solve

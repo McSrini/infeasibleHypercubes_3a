@@ -100,6 +100,7 @@ public class CplexBasedOriginFinder {
             }
         }
         
+        cplex.end();
         return retval ;
     }
     

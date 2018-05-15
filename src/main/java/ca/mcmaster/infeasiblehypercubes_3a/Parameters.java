@@ -10,8 +10,8 @@ package ca.mcmaster.infeasiblehypercubes_3a;
  * @author tamvadss
  */
 public class Parameters {
-       public static final String MIP_FILENAME = "F:\\temporary files here\\neos-807456.mps";  ////x1 x7  x4  x2
-       //public static final String MIP_FILENAME = "F:\\temporary files here\\knapsackTinyInfeasible.lp";  ////x1 x7  x4  x2
+       //public static final String MIP_FILENAME = "F:\\temporary files here\\neos-807456.mps";  ////x1 x7  x4  x2
+       public static final String MIP_FILENAME = "F:\\temporary files here\\knapsackTinyInfeasible.lp";  ////x1 x7  x4  x2
        //public static final String MIP_FILENAME = "F:\\temporary files here\\knapsackSmall.lp";  ////x1 x7  x4  x2
        //public static final String MIP_FILENAME = "F:\\temporary files here\\knapsackFourTest.lp"; 
        //public static final String MIP_FILENAME = "F:\\temporary files here\\stp3d.mps";

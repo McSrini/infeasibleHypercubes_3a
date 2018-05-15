@@ -39,9 +39,12 @@ public class RectangleFilter {
     }
     
     //return true if leaf is a ssuperset of rect
-    private boolean  checkUNFeasible (  Rectangle  rectangle , LeafNode leaf){        
-        
-        return leaf .oneFixedVariables.containsAll(rectangle.oneFixedVariables) && leaf.zeroFixedVariables.containsAll(rectangle.zeroFixedVariables);         
+    private boolean  checkUNFeasible (  Rectangle  rectangle , LeafNode leaf){     
+        boolean isUnfeasible = leaf .oneFixedVariables.containsAll(rectangle.oneFixedVariables) && leaf.zeroFixedVariables.containsAll(rectangle.zeroFixedVariables);
+        if (isUnfeasible) {
+            //System.out.println("leaf "+ leaf + " is superset of rect " + rectangle ); 
+        }
+        return  isUnfeasible;         
     }
     
     //ensure rect has no conflicting bounds

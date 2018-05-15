@@ -67,7 +67,7 @@ public abstract class Base_Driver {
         }
             
         logger=Logger.getLogger(Base_Driver.class);
-        logger.setLevel(Level.WARN);
+        logger.setLevel(Level.DEBUG);
         
         PatternLayout layout = new PatternLayout("%5p  %d  %F  %L  %m%n");     
         try {
@@ -102,6 +102,8 @@ public abstract class Base_Driver {
            collector.collectOne();
            //collector.printAllCollectedRects();
             
+           
+           
         }
         
         
@@ -154,10 +156,12 @@ public abstract class Base_Driver {
         this.activeLeafs.put( new_Node.lpRelaxValueMinimization , nodeList);
     }
         
-    protected void replenishRectanglesAll (double threshold) throws IloException {
+    protected int replenishRectanglesAll (double threshold) throws IloException {
+        int count = ZERO;
         for (RectangleCollector collector : this.rectangleCollectorList) {
-            collector.replenishRectangles(threshold);
+            count += collector.replenishRectangles(threshold);
         }
+        return count;
     }
     
     //get the   compatible rect list for each constraint, given a leaf
