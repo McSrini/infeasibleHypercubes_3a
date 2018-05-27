@@ -8,6 +8,7 @@ package ca.mcmaster.infeasiblehypercubes_3a.collection;
 import ca.mcmaster.infeasiblehypercubes_3a.drivers.Base_Driver;
 import static ca.mcmaster.infeasiblehypercubes_3a.Constants.*;
 import static ca.mcmaster.infeasiblehypercubes_3a.Parameters.INITIAL_RECTS_TO_BE_COLLECTED_PER_CONSTRAINT;
+import static ca.mcmaster.infeasiblehypercubes_3a.Parameters.REPLENISHMENT_LIMIT;
 import static ca.mcmaster.infeasiblehypercubes_3a.Parameters.USE_STRICT_INEQUALITY_IN_MIP;
 import ca.mcmaster.infeasiblehypercubes_3a.common.*;
 import ilog.concert.IloException;
@@ -40,7 +41,7 @@ public class RectangleCollector {
     private static Logger logger=Logger.getLogger(RectangleCollector.class);
     
     static {
-        logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.OFF);
         PatternLayout layout = new PatternLayout("%5p  %d  %F  %L  %m%n");     
         try {
             logger.addAppender(new  RollingFileAppender(layout,LOG_FOLDER+RectangleCollector.class.getSimpleName()+ LOG_FILE_EXTENSION));
@@ -71,12 +72,19 @@ public class RectangleCollector {
     public int replenishRectangles  (double lp_threshold) throws IloException {
         logger.debug("\n replenishRectangles to threshold  ... "+lp_threshold);
         int count = ZERO;
+        int iterations = ZERO;
         while (!this.pendingJobs.isEmpty()){
              
             double bestLPRelax = Collections.min( pendingJobs.keySet());
             if (bestLPRelax> lp_threshold)break;
             
             if ( collectOne ()) count ++;
+            
+            iterations++;
+                    
+            //System.out.println("Collection iterations "+ iterations) ;
+            if (REPLENISHMENT_LIMIT<iterations && count > ZERO )  break;
+             
         }
         logger.debug("\n replenishRectangles ended , collected this many  ... "+count);
         return count;
@@ -279,7 +287,7 @@ public class RectangleCollector {
         
     private void addLeafToFeasibleCollection (Rectangle feasibleRect) throws IloException{
         if ( ! feasibleRect.findBestVertex (ubc) ) {
-            System.err.println("Could not find best vertex for feasible rect, error!") ;
+            System.err.println("Could not find best vertex for what is supposed to be a feasible rect, error!") ;
             exit (ONE) ;
         }
         List<Rectangle> rects= collectedFeasibleRectangles.get( feasibleRect.bestVertexValue);

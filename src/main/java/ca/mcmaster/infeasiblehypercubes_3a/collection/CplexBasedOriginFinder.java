@@ -15,6 +15,7 @@ import ilog.concert.IloLPMatrix;
 import ilog.concert.*;
 import ilog.concert.IloRange;
 import ilog.cplex.IloCplex;
+import static ilog.cplex.IloCplex.IntParam.MIPDisplay;
 import ilog.cplex.IloCplex.Status;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,9 +64,10 @@ public class CplexBasedOriginFinder {
         
         cplex.use (new CplexIncumbentHandler(variables, reducedConstraint)) ;
         
-        cplex.setParam(  IloCplex.IntParam.HeurFreq , -ONE);
-        cplex.setParam(IloCplex.Param.MIP.Limits.CutPasses,ZERO);        
-        cplex.setParam(IloCplex.Param.Preprocessing.Presolve, false);
+        //cplex.setParam(  IloCplex.Param.MIP.Strategy.HeuristicFreq , -ONE);
+       // cplex.setParam(IloCplex.Param.MIP.Limits.CutPasses,ZERO);        
+        //cplex.setParam(IloCplex.Param.Preprocessing.Presolve, false);
+        cplex.setParam( MIPDisplay, ZERO);
        
     }
     

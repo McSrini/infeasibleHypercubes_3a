@@ -42,12 +42,12 @@ public class Objective {
         return coefficientMagnitudes.get(var);
     }
     
-    public String toString() {
+    /*public String toString() {
         String str = "";
         
         for (VariableCoefficientTuple tuple : objectiveExpr) {
             str += ("Var is " + tuple.varName  + " and its coeff is "+ tuple.coeff+"\n") ;
         }
         return str;
-    }
+    }*/
 }

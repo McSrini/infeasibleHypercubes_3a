@@ -25,7 +25,7 @@ public class VariableCoefficientTuple  implements Comparable{
        return Double.compare(Math.abs(this.coeff ), Math.abs(  ((VariableCoefficientTuple)other).coeff ));
     } 
     
-    public String toString (){
+    /*public String toString (){
         return "Tuple is " + this.varName + " " + this.coeff;
-    }
+    }*/
 }

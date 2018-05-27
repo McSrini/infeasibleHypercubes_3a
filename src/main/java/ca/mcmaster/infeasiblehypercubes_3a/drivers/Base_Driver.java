@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -45,29 +46,28 @@ import org.apache.log4j.RollingFileAppender;
 public abstract class Base_Driver {
         
     //constraints in this mip
-    public static List<LowerBoundConstraint> mipConstraintList ;
-    public static Objective objective ;
-    public static List<String> allVariablesInModel ;
+    public  static List<LowerBoundConstraint> mipConstraintList ;
+    public static  Objective objective ;
+    public static  List<String> allVariablesInModel ;
     
     //here is the frontier and incumbent
-    public static  Map<Double, List<LeafNode> > activeLeafs  = new TreeMap<Double,  List<LeafNode> >();    
-    public static double incumbent = Double.MAX_VALUE;
-    public static LeafNode bestKnownSolution = null;
+    public   Map<Double, List<LeafNode> > activeLeafs  = new TreeMap<Double,  List<LeafNode> >();    
+    public   double incumbent = Double.MAX_VALUE;
+    public   LeafNode bestKnownSolution = null;
     
     //1 collector per constraint
-    protected List<RectangleCollector> rectangleCollectorList = new ArrayList <RectangleCollector>();
+    protected static List<RectangleCollector> rectangleCollectorList = new ArrayList <RectangleCollector>();
     
     protected static Logger logger=Logger.getLogger(Base_Driver.class);
-        
-    public   Base_Driver () throws IloException{
-                
+    
+    static {
         if (! isLogFolderEmpty()) {
             System.err.println("\n\n\nClear the log folder before starting " + LOG_FOLDER);
             //exit(ONE);
         }
             
         logger=Logger.getLogger(Base_Driver.class);
-        logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.OFF);
         
         PatternLayout layout = new PatternLayout("%5p  %d  %F  %L  %m%n");     
         try {
@@ -82,39 +82,45 @@ public abstract class Base_Driver {
             exit(1);
         }
         
-        logger.debug ("Start  solve " +MIP_FILENAME ) ;
+        //logger.debug ("Start  solve " +MIP_FILENAME ) ;
         
         //assemble constraints in model
-        IloCplex mip =  new IloCplex();
-        mip.importModel(MIP_FILENAME);
-        mip.exportModel(MIP_FILENAME+ ".lp");
-        mipConstraintList= MIP_Reader.getConstraints(mip);
-        objective= MIP_Reader.getObjective(mip);
-        allVariablesInModel = MIP_Reader.getVariables(mip) ;
-        
-        logger.debug ("Collected objective and constraints" ) ;
-        
-       //prepare 1 rectangle collector per constraint        
-        for ( LowerBoundConstraint lbc: mipConstraintList) {
-           RectangleCollector collector=new RectangleCollector(lbc) ;
-           rectangleCollectorList.add(collector) ;
-           //collector.printAllPendingJobs();
-           collector.collectOne();
-           //collector.printAllCollectedRects();
-            
-           
-           
+        try {
+            IloCplex mip =  new IloCplex();
+            mip.importModel(MIP_FILENAME);
+            mip.exportModel(MIP_FILENAME+ ".lp");
+            mipConstraintList= MIP_Reader.getConstraints(mip);
+            objective= MIP_Reader.getObjective(mip);
+            allVariablesInModel = MIP_Reader.getVariables(mip) ;
+
+            logger.debug ("Collected objective and constraints" ) ;
+
+           //prepare 1 rectangle collector per constraint 
+           int collectionIteration = ZERO;
+            for ( LowerBoundConstraint lbc: mipConstraintList) {
+               RectangleCollector collector=new RectangleCollector(lbc) ;
+               rectangleCollectorList.add(collector) ;
+               //collector.printAllPendingJobs();
+               collector.collectOne();
+               //collector.printAllCollectedRects();
+                logger.info ("constraint name " + lbc.name + " Collection iteration "+ collectionIteration++ ) ;
+            }
+        }catch (Exception ex){
+            System.err.println(ex) ;
+            exit(ONE);
         }
         
+    }
         
-       
-        
+    public   Base_Driver () throws IloException{
+           
         
     } //end main
     
-    public abstract void solve () ;
+    //solve till frontier hits frontierSize 
+    public abstract void solve (int frontierSize) ;
         
-    public static double getBestBound () {
+    public   double getBestBound () {
         return Collections.min(activeLeafs.keySet()) ;
     }
         
@@ -129,33 +135,52 @@ public abstract class Base_Driver {
         return (dir.isDirectory() && dir.list().length==ZERO);
     }
      
+    //get numer of rects whose best vertex value is <= threshold
+    protected static int getNumberOfRects ( Map<Double, List<Rectangle> > map2 , double threshold){
+        int count = ZERO;
+        for (List<Rectangle> rectlist : map2.values()){
+            for (Rectangle rect : rectlist) {
+                if (rect.bestVertexValue <= threshold) count ++;
+            }            
+        }
+        return count;
+    }
     protected static int getNumberOfLeafs ( Map<Double, List<LeafNode> > map2){
         int count = ZERO;
-        for (List<LeafNode> rectlist : map2.values()){
-            count +=rectlist.size();
+        for (List<LeafNode> leaflist : map2.values()){
+            count +=leaflist.size();
         }
         return count;
     }
     
     protected void printAllLeafs () {
-        logger.debug("");
-        for (List<LeafNode> nodes : this.activeLeafs.values()) {
-            for (LeafNode node: nodes){
-                logger.debug(node + " having lp relax "+ node.lpRelaxValueMinimization);
-            }
-            
+        logger.debug("Printing active leafs ..... ");
+        for (Entry <Double, List<LeafNode>> entry : this.activeLeafs.entrySet()) {
+            for (LeafNode node: entry.getValue()){
+                String message = node + " having lp relax "+ node.lpRelaxValueMinimization + " and number of rects " + entry.getKey();                
+                logger.debug(message );
+            }            
         }
         logger.debug("");
         
     }
-        
-    protected void addActiveLeaf( LeafNode new_Node) {
-        List<LeafNode>  nodeList = this.activeLeafs.get( new_Node.getLpRelaxVertex_Minimization());
-        if (nodeList==null) nodeList = new ArrayList<LeafNode> ();
-        nodeList.add(new_Node);
-        this.activeLeafs.put( new_Node.lpRelaxValueMinimization , nodeList);
+    
+    //consider new feasible solution , and return true if it updates incumbent
+    protected boolean updateIncumbent (LeafNode feasibleSolution) {
+        boolean result = false ;
+        if (feasibleSolution.lpRelaxValueMinimization< this.incumbent){
+            result = true;
+            this.incumbent=feasibleSolution.lpRelaxValueMinimization;
+            this.bestKnownSolution = feasibleSolution;
+        }
+        if (result) logger.info("Incumbent updated to "+ incumbent) ;
+        return result;
     }
         
+ 
+        
+ 
+    
     protected int replenishRectanglesAll (double threshold) throws IloException {
         int count = ZERO;
         for (RectangleCollector collector : this.rectangleCollectorList) {
@@ -211,4 +236,6 @@ public abstract class Base_Driver {
         this.addActiveLeaf(oneChild);
         
     }
+    
+    abstract void addActiveLeaf( LeafNode new_Node ) ;
 }

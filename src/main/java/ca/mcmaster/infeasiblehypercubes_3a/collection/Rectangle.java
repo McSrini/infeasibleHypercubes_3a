@@ -103,9 +103,9 @@ public class Rectangle {
             int index = ZERO;
             for (VariableCoefficientTuple tuple: reducedConstraint.sortedConstraintExpr) {
                 if (isVariableFixedAtZeroAtBestVertex.get(index)) {
-                    System.out.println ("var fixed at zero at best vertex "+tuple.varName) ;
+                    //System.out.println ("var fixed at zero at best vertex "+tuple.varName) ;
                 }else {
-                    System.out.println ("var fixed at one at best vertex "+tuple.varName) ;
+                    //System.out.println ("var fixed at one at best vertex "+tuple.varName) ;
                 }
                 index++;
             }
@@ -119,7 +119,8 @@ public class Rectangle {
                  
     }
     
-    public String toString (){
+    /*public String toString (){
+        
         String result=" ";//lp realx " + this.lpRelaxValueMinimization;
         result += " --- Zero fixed vars :";
         for (String str: zeroFixedVariables){
@@ -130,7 +131,8 @@ public class Rectangle {
             result += str + ",";
         }
         return result;
-    }
+
+    }*/
     
     private double getReducedConstraintValueAtBestVertex ( UpperBoundConstraint reducedConstraint ){
         double value = ZERO ;

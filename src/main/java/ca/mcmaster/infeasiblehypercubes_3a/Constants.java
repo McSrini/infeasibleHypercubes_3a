@@ -19,6 +19,7 @@ public class Constants {
     public static double DOUBLE_ZERO =0 ;
     public static double DOUBLE_ONE =1;
     public static int TEN =10;
+    public static int SIXTY_THOUSAND =60000;
     public static int MILLION =1000000;
     
     public static final String LOG_FOLDER="logs/"; 

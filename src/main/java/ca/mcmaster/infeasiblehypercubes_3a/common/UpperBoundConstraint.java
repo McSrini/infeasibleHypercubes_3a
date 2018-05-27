@@ -86,12 +86,12 @@ public class UpperBoundConstraint {
         return reducedConstraint;
     }
     
-    public String toString() {
+    /*public String toString() {
         String str = "Constraint name "+ name ;
         str+=("Upper bound is "+ this.upperBound+"\n");
         for (VariableCoefficientTuple tuple : sortedConstraintExpr) {
             str += ("Var is " + tuple.varName  + " and its coeff is "+ tuple.coeff+"\n") ;
         }
         return str;
-    }    
+    }    */
 }

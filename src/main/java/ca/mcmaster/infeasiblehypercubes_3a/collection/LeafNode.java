@@ -11,6 +11,7 @@ import static ca.mcmaster.infeasiblehypercubes_3a.Constants.ZERO;
 import ca.mcmaster.infeasiblehypercubes_3a.common.VariableCoefficientTuple;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -24,8 +25,7 @@ public class LeafNode extends Rectangle {
     public double lpRelaxValueMinimization;     
     public List <String> lpVertex_zeroFixedVariables = new ArrayList <String>();
     public List <String> lpVertex_oneFixedVariables  = new ArrayList <String>();
-    
-    
+     
     public LeafNode ( List <String> zeroFixed,  List <String> oneFixed){
         super( zeroFixed,   oneFixed) ;
         myId =NODE_ID++;
